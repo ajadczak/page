@@ -54,6 +54,9 @@
 		['44', 'Jack of spades']
 	]);
 
+	const texture = (face: number, suit: number) => TextureMap.get(`${face}${suit}`);
+	const alt = (face: number, suit: number) => CardNames.get(`${face}${suit}`);
+
 	class Card {
 		face: number;
 		suit: number;
@@ -64,15 +67,26 @@
 			this.suit = suit;
 			this.id = `${face}${suit}`;
 		}
-
-		texture() {
-			return TextureMap.get(`${this.face}${this.suit}`);
-		}
-
-		alt() {
-			return CardNames.get(`${this.face}${this.suit}`);
-		}
 	}
+
+	const defaultPositions: Card[] = [
+		new Card(1, 1),
+		new Card(1, 2),
+		new Card(1, 3),
+		new Card(1, 4),
+		new Card(2, 1),
+		new Card(2, 2),
+		new Card(2, 3),
+		new Card(2, 4),
+		new Card(3, 1),
+		new Card(3, 2),
+		new Card(3, 3),
+		new Card(3, 4),
+		new Card(4, 1),
+		new Card(4, 2),
+		new Card(4, 3),
+		new Card(4, 4)
+	];
 
 	let cards: Card[] = [
 		new Card(1, 1),
@@ -116,6 +130,7 @@
 			selectedId = '';
 		}
 	}
+
 	function selectCardWithKeyboard(e: KeyboardEvent, card: Card) {
 		if (e.key === 'Enter' || e.key === ' ') {
 			selectCard(card);
@@ -152,6 +167,11 @@
 	}
 
 	let headerMinimized = false;
+	export const snapshot = {
+		capture: () => cards,
+		restore: (value: Card[]) => (cards = value)
+	};
+
 	$: solved = isSolved(cards);
 </script>
 
@@ -159,6 +179,9 @@
 	<header>
 		<nav>
 			<h1 class:hidden={headerMinimized}>Card puzzle game</h1>
+			<button type="button" on:click={() => (cards = defaultPositions)} class="reset">
+				Reset Game
+			</button>
 			<button type="button" on:click={() => (headerMinimized = !headerMinimized)} class="minimize">
 				{#if headerMinimized}
 					<span>Expand</span>
@@ -192,9 +215,9 @@
 				>
 					<img
 						class:selected={selectedId === card.id}
-						src={card.texture()}
-						alt={card.alt()}
-						aria-label={card.alt()}
+						src={texture(card.face, card.suit)}
+						alt={alt(card.face, card.suit)}
+						aria-label={alt(card.face, card.suit)}
 					/>
 				</button>
 			</div>
@@ -259,8 +282,23 @@
 		height: 0;
 	}
 
-	.minimize {
+	.reset {
 		margin-left: auto;
+		margin-right: 20px;
+		background: none;
+		font-family: 'Bricolage Grotesque';
+		font-size: 16px;
+		font-weight: 600;
+		border: none;
+		cursor: pointer;
+		border-bottom: thin solid #63ccff;
+		height: 40px;
+		&:hover {
+			color: #ffcd36;
+		}
+	}
+
+	.minimize {
 		background: none;
 		font-family: 'Bricolage Grotesque';
 		font-size: 16px;
