@@ -69,25 +69,6 @@
 		}
 	}
 
-	const defaultPositions: Card[] = [
-		new Card(1, 1),
-		new Card(1, 2),
-		new Card(1, 3),
-		new Card(1, 4),
-		new Card(2, 1),
-		new Card(2, 2),
-		new Card(2, 3),
-		new Card(2, 4),
-		new Card(3, 1),
-		new Card(3, 2),
-		new Card(3, 3),
-		new Card(3, 4),
-		new Card(4, 1),
-		new Card(4, 2),
-		new Card(4, 3),
-		new Card(4, 4)
-	];
-
 	let cards: Card[] = [
 		new Card(1, 1),
 		new Card(1, 2),
@@ -166,6 +147,16 @@
 		return true;
 	}
 
+	function resetGame() {
+		let newCards = [];
+		for (let i = 1; i <= 4; i++) {
+			for (let j = 1; j <= 4; j++) {
+				newCards.push(new Card(i, j));
+			}
+		}
+		cards = newCards;
+	}
+
 	let headerMinimized = false;
 	export const snapshot = {
 		capture: () => cards,
@@ -179,9 +170,7 @@
 	<header>
 		<nav>
 			<h1 class:hidden={headerMinimized}>Card puzzle game</h1>
-			<button type="button" on:click={() => (cards = defaultPositions)} class="reset">
-				Reset Game
-			</button>
+			<button type="button" on:click={() => resetGame()} class="reset"> Reset Game </button>
 			<button type="button" on:click={() => (headerMinimized = !headerMinimized)} class="minimize">
 				{#if headerMinimized}
 					<span>Expand</span>
