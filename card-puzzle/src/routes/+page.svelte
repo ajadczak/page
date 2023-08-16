@@ -56,6 +56,8 @@
 
 	const texture = (face: number, suit: number) => TextureMap.get(`${face}${suit}`);
 	const alt = (face: number, suit: number) => CardNames.get(`${face}${suit}`);
+	let headerMinimized = false;
+	let selectedId: string = '';
 
 	class Card {
 		face: number;
@@ -88,7 +90,6 @@
 		new Card(4, 4)
 	];
 
-	let selectedId: string = '';
 	function selectCard(card: Card) {
 		if (selectedId === card.id) {
 			selectedId = '';
@@ -157,7 +158,6 @@
 		cards = newCards;
 	}
 
-	let headerMinimized = false;
 	export const snapshot = {
 		capture: () => cards,
 		restore: (value: Card[]) => (cards = value)
@@ -169,15 +169,17 @@
 <main>
 	<header>
 		<nav>
-			<h1 class:hidden={headerMinimized}>Card puzzle game</h1>
-			<button type="button" on:click={() => resetGame()} class="reset"> Reset Game </button>
-			<button type="button" on:click={() => (headerMinimized = !headerMinimized)} class="minimize">
-				{#if headerMinimized}
-					<span>Expand</span>
-				{:else}
-					<span>Full screen</span>
-				{/if}
-			</button>
+			<h1 class:hidden={headerMinimized}>Card puzzle</h1>
+			<div class="buttons">
+				<button type="button" on:click={() => resetGame()} class="reset"> Reset Game </button>
+				<button type="button" on:click={() => (headerMinimized = !headerMinimized)} class="minimize">
+					{#if headerMinimized}
+						<span>Expand</span>
+					{:else}
+						<span>Full screen</span>
+					{/if}
+				</button>
+			</div>
 		</nav>
 		<section class:hidden={headerMinimized}>
 			<p>
@@ -216,6 +218,8 @@
 
 <style type="text/scss" lang="scss">
 	@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,400;10..48,600&family=Open+Sans&family=Playfair+Display:wght@600&display=swap');
+	$mobile-snap: 800px;
+
 	:global(html) {
 		background-color: #0182b5;
 		background: linear-gradient(#579db8 10px, #0182b5 99%);
@@ -255,8 +259,26 @@
 	}
 
 	nav {
-		display: inline-flex;
+		display: flex;
 		align-items: center;
+		& .buttons {
+			margin-left: auto;
+			@media (max-width: $mobile-snap) {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 10px;
+
+				& button {
+					border: thin solid #63ccff;
+					border-radius: 5px;
+					width: 100%;
+					&:first-of-type {
+						margin-top: 5px;
+					}
+				}
+			}
+		}
 	}
 
 	header {
@@ -325,10 +347,13 @@
 	}
 
 	.selected {
+		// remove selected card from flow so scaling does not shift other cards
+		position: absolute;
+		top: 0;
 		scale: 1.025;
-		border: 2px solid #ffcd36;
-		border-radius: 12px;
-		box-shadow: 2px 2px 3px 5px rgba(48, 48, 48, 0.3);
+		box-shadow: 2px 2px 3px 2px rgba(48, 48, 48, 0.3);
+		border-radius: 8px;
+		padding: 1px;
 	}
 
 	.winner {
@@ -342,24 +367,23 @@
 
 		&:hover {
 			border-radius: 12px;
-			box-shadow: 2px 2px 3px 3px rgba(48, 48, 48, 0.2);
 			scale: 1.02;
 			transition: scale 0.2s;
 		}
 
 		&:focus-within {
-			border-radius: 12px;
-			box-shadow: 2px 2px 3px 3px rgba(48, 48, 48, 0.2);
 			scale: 1.02;
 			transition: scale 0.2s;
 		}
 
 		& button {
+			border-image: none;
+			background-color: transparent;
 			outline: none;
 			border: 0;
-			border-radius: 12px;
 			padding: 0;
 			cursor: pointer;
+			box-shadow: none;
 		}
 
 		& img {
