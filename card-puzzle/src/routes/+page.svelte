@@ -435,6 +435,7 @@
 	}
 
 	.card {
+		touch-action: none;
 		display: flex;
 		scale: 1;
 		transition: scale 0.1s;
