@@ -270,6 +270,7 @@
 				gap: 10px;
 
 				& button {
+					color: black;
 					border: thin solid #63ccff;
 					border-radius: 5px;
 					width: 100%;
