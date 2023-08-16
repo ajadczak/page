@@ -90,6 +90,28 @@
 		new Card(4, 4)
 	];
 
+	function swapCards(c1:string | undefined, c2:string | undefined) {
+		if (!c1 || !c2) {
+			return;
+		}
+		
+		let idx1 = 0;
+		let idx2 = 0;
+		cards.forEach((c, i) => {
+			if (c.id === c1) {
+				idx1 = i;
+			} else if (c.id === c2) {
+				idx2 = i;
+			}
+		});
+		let swap = cards[idx1];
+		cards[idx1] = cards[idx2];
+		cards[idx2] = swap;
+		selectedId = '';
+		dragStartCard = undefined;
+		dragEndCard = undefined;
+	}
+
 	function selectCard(card: Card) {
 		if (selectedId === card.id) {
 			selectedId = '';
@@ -97,19 +119,7 @@
 			selectedId = card.id;
 		} else {
 			// swap the cards
-			let idx1 = 0;
-			let idx2 = 0;
-			cards.forEach((c, i) => {
-				if (c.id === selectedId) {
-					idx1 = i;
-				} else if (c.id === card.id) {
-					idx2 = i;
-				}
-			});
-			let swap = cards[idx1];
-			cards[idx1] = cards[idx2];
-			cards[idx2] = swap;
-			selectedId = '';
+			swapCards(selectedId, card.id);
 		}
 	}
 
@@ -158,6 +168,55 @@
 		cards = newCards;
 	}
 
+
+	let dragStartCard:Card | undefined;
+	let dragEndCard:Card | undefined;
+	function onDragStart(event:DragEvent, card:Card) {
+		event.dataTransfer?.clearData();
+		event.dataTransfer?.setData('text/plain', JSON.stringify(card));
+		dragStartCard = card;
+	}
+
+	function onDragEnd() {
+		if (!dragStartCard || !dragEndCard || dragStartCard.id === dragEndCard.id) {
+			dragStartCard = undefined;
+			dragEndCard = undefined;
+			return;
+		}
+	}
+
+	function onDragOver(event:any, card:Card) {
+		// TODO(ajadczak): add custom style
+	}
+
+	function onDragEnter(card:Card) {
+		dragEndCard = card;
+	}
+
+	function onTouchStart(card:Card) {
+		dragStartCard = card;
+	}
+
+	function onTouchMove(event: TouchEvent) {
+		if(event.changedTouches.length === 1) {
+			const element = document.elementFromPoint(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+			const cardId = element?.getAttribute("data-id");
+			if(cardId) {
+				const card = cards.find((c) => c.id === cardId);
+				dragEndCard = card || undefined;
+			}
+		}
+	}
+
+	function onTouchEnd() {
+		swapCards(dragStartCard?.id, dragEndCard?.id);
+	}
+
+	function onTouchCancel() {
+		dragStartCard = undefined;
+		dragEndCard = undefined;
+	}
+
 	export const snapshot = {
 		capture: () => cards,
 		restore: (value: Card[]) => (cards = value)
@@ -198,10 +257,13 @@
 
 	<section class="game">
 		{#each cards as card (card.id)}
-			<div class="card" role="none">
+			<div
+				class="card"
+				role="none"
+				>
 				<button
 					tabindex="0"
-					on:keyup={(e) => selectCardWithKeyboard(e, card)}
+					on:keydown={(e) => selectCardWithKeyboard(e, card)}
 					on:click={() => selectCard(card)}
 				>
 					<img
@@ -209,6 +271,16 @@
 						src={texture(card.face, card.suit)}
 						alt={alt(card.face, card.suit)}
 						aria-label={alt(card.face, card.suit)}
+						data-id={card.id}
+						draggable
+						on:dragstart={(event) => onDragStart(event, card)}
+						on:dragend={() => onDragEnd()}
+						on:dragover={(event) => onDragOver(event, card)}
+						on:dragenter={() => onDragEnter(card)}
+						on:touchstart={() => onTouchStart(card)}
+						on:touchmove={(event) => onTouchMove(event)}
+						on:touchend={() => onTouchEnd()}
+						on:touchcancel={() => onTouchCancel()}
 					/>
 				</button>
 			</div>
@@ -261,6 +333,7 @@
 	nav {
 		display: flex;
 		align-items: center;
+		
 		& .buttons {
 			margin-left: auto;
 			@media (max-width: $mobile-snap) {
