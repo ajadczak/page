@@ -183,6 +183,7 @@
 			dragEndCard = undefined;
 			return;
 		}
+		swapCards(dragStartCard?.id, dragEndCard?.id);
 	}
 
 	function onDragOver(event:any, card:Card) {
