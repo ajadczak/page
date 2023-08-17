@@ -246,7 +246,7 @@
 				Arranged in the four by four grid below are the cards ace, king, queen and jack, with one
 				card from each of the four suits. To solve the puzzle, arrange the cards such that each row
 				and column contain one of each card and suit. Click a card to select it, and then click
-				another card to swap.
+				another card to swap, or drag and drop cards.
 			</p>
 		</section>
 		{#if solved}
